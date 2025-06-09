@@ -1,22 +1,36 @@
+import { createContext, useState } from "react";
+import LiftingUP from "./components/LiftingUP";
+import ChildComponent from "./components/ChildComponent";
+import ChildA from "./components/UseContext/ChildA";
 
-import Component from './components/Component'
-import Checkbox from './components/Checkbox'
-import Dropdown from './components/Dropdown'
-import NestedLooping from './components/NestedLooping'
+const User = createContext();
 
 function App() {
 
+  const [count, setCount] = useState(0);
+  const [input, setInput] = useState("");
+  const [name, setName] = useState("Abhijeet");
+
+  function handleClick() {
+    setCount(count + 1);
+  }
+
   return (
     <>
-      {/* <Component />
-      <Checkbox />
-      <Dropdown />
+      <button onClick={handleClick}>{count}</button>
+      {/* <UseEffect count={count} /> */}
+      <LiftingUP input={input} setInput={setInput}/>
+      <ChildComponent input={input}/>
 
-      <NestedLooping /> */}
+      <hr />
+      <hr />
 
-      <UseEffect />
+      <User.Provider value={name}>
+        <ChildA/>
+      </User.Provider>
     </>
   )
 }
 
 export default App
+export {User}

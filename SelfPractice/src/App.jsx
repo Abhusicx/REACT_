@@ -1,36 +1,33 @@
-import { createContext, useState } from "react";
-import LiftingUP from "./components/LiftingUP";
-import ChildComponent from "./components/ChildComponent";
-import ChildA from "./components/UseContext/ChildA";
-
-const User = createContext();
+import { useEffect, useState, useRef} from 'react'
+import './App.css'
 
 function App() {
 
-  const [count, setCount] = useState(0);
-  const [input, setInput] = useState("");
-  const [name, setName] = useState("Abhijeet");
+  const [count , setCount] = useState(0);
+  let value = useRef(0);
+  let button = useRef(null);
 
-  function handleClick() {
+  function handleIncrement() {
+    value.current = value.current + 1;
+    console.log(value);
     setCount(count + 1);
   }
 
+  function changeColor() {
+    button.current.style.backgroundColor = "blue";
+  }
+
+  useEffect(() => {
+    console.log("re-render");
+  })
+
   return (
     <>
-      <button onClick={handleClick}>{count}</button>
-      {/* <UseEffect count={count} /> */}
-      <LiftingUP input={input} setInput={setInput}/>
-      <ChildComponent input={input}/>
-
-      <hr />
-      <hr />
-
-      <User.Provider value={name}>
-        <ChildA/>
-      </User.Provider>
+      <button ref={button} onClick={handleIncrement}>Increment</button>
+      <h1>Count : {count}</h1>
+      <button onClick={changeColor}>Change color of the Increment button</button>
     </>
   )
 }
 
 export default App
-export {User}

@@ -10,7 +10,8 @@ import Student from './component/Student'
 import Child1 from './component/Child1'
 import Child2 from './component/Child2'
 import NotFound from './component/NotFound'
-import {ProtectedRoute} from './component/ProtectedRoute'
+import { ProtectedRoute } from './component/ProtectedRoute'
+import { useEffect, useState , useRef} from 'react'
 
 const routing = createBrowserRouter([
   { 
@@ -98,9 +99,23 @@ const routing = createBrowserRouter([
 
 function App() {
 
+  const [count , setCount] = useState(0);
+  let shailja = useRef(0);
+
+  function Increment(){
+    setCount(count + 1);
+    shailja.current = shailja.current + 1;
+    console.log("shailja : " ,shailja);
+  }
+
+  useEffect(() => {
+    console.log("re-render from app.jsx");
+  })
+
   return (
     <>
       <RouterProvider router={routing} />
+      <button onClick={Increment}>Count : {count}</button>
     </>
   )
 }

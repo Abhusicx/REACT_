@@ -1,106 +1,15 @@
-import './App.css'
-import {createBrowserRouter, RouterProvider} from 'react-router-dom'
-import Home from './component/Home'
-import About from './component/About'
-import Contact from './component/Contact'
-import Layout from './component/Layout'
-import Navbar from './component/Navbar'
-import Navbar1 from './component/Navbar1'
-import Student from './component/Student'
-import Child1 from './component/Child1'
-import Child2 from './component/Child2'
-import NotFound from './component/NotFound'
-import {ProtectedRoute} from './component/ProtectedRoute'
+import { use } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-const routing = createBrowserRouter([
-  { 
-    path: '/',
-    element: 
-    <>
-      <Navbar1 />
-      <hr />
-      <Navbar />
-      <Home />
-    </>
-  },
-  {
-    path: '/about',
-    element:
-    <>
-      <ProtectedRoute>
-      <Navbar1 />
-      <hr />
-      <Navbar />
-      <About />
-      </ProtectedRoute>
-    </>
-  },
-  {
-    path: '/contact',
-    element:
-    <>
-      <ProtectedRoute>
-      <Navbar1 />
-      <hr />
-      <Navbar />
-      <Contact />
-      </ProtectedRoute>
-    </>
-  },
-  {
-    path: '/Layout',
-    element:
-    <>
-      <ProtectedRoute>
-      <Navbar1 />
-      <hr />
-      <Navbar />
-      <Layout />
-      </ProtectedRoute>
-    </>,
-    children:[
-      {
-        path: 'child1',
-        element: 
-        <>
-          <Child1 />
-        </>
-      },
-      {
-        path: 'child2',
-        element: 
-        <>
-          <Child2 />
-        </>
-      }
-    ]
-  },
-  {
-    path: '/student/:id',
-    element:
-    <>
-      <ProtectedRoute>
-      <Navbar1 />
-      <hr />
-      <Navbar />
-      <Student /> 
-      </ProtectedRoute>
-    </>
-  },
-  {
-    path: '*',
-    element:
-    <>
-      <NotFound />
-    </>
-  }
-])
-
-function App() {
+const App = () => {
+    const [num , setNum] = useState(0);
+    const number = useSelector((state) => state.counter.value);
 
   return (
     <>
-      <RouterProvider router={routing} />
+        <h1>{num}</h1>
+        <button onClick={() => useDispatch(increment())}>Increment</button>
+        <button onClick={() => useDispatch(decrement())}>Decrement</button>
     </>
   )
 }

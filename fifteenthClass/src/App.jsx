@@ -6,10 +6,13 @@ function App() {
   const [ekemployee, setEkemployee] = useState(null);
 
   const [name, setName] = useState("");
-  const [age, setAge] = useState();
-  const [salary, setSalary] = useState();
+  const [age, setAge] = useState("");
+  const [salary, setSalary] = useState("");
 
-  const url = "https://dummy.restapiexample.com/api/v1/employees";
+  const [editMode, setEditMode] = useState(false);
+  const [editEmployeeId, setEditEmployeeId] = useState(null);
+
+  const url = "https://dummyjson.com/users";
 
   useEffect(() => {
     getEmployee();
@@ -19,8 +22,8 @@ function App() {
     try {
       const response = await fetch(url);
       const result = await response.json();
-      if (result.data) {
-        setEmployees(result.data);
+      if (result.users) {
+        setEmployees(result.users);
       }
     } catch (error) {
       console.error("Error fetching all employees:", error);
@@ -30,15 +33,9 @@ function App() {
   async function getEmployeeById() {
     if (!input) return;
     try {
-      const response = await fetch(
-        `https://dummy.restapiexample.com/api/v1/employee/${input}`
-      );
+      const response = await fetch(`${url}/${input}`);
       const result = await response.json();
-      if (result.data) {
-        setEkemployee(result.data);
-      } else {
-        setEkemployee(null);
-      }
+      setEkemployee(result);
     } catch (error) {
       console.error("Error fetching employee by ID:", error);
       setEkemployee(null);
@@ -46,43 +43,63 @@ function App() {
   }
 
   async function createEmployee() {
-    const url = "https://dummy.restapiexample.com/api/v1/create";
-    console.log(name, age, salary);
-    if (!name || !age || !salary) return;
+    if (!name || !age ) return;
     try {
-      const response = await fetch(
-        url,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            name,
-            age,
-            salary,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response) {
-        console.log(response);
-      }
+      const response = await fetch(`${url}/add`, {
+        method: "POST",
+        body: JSON.stringify({ name, age, salary }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const result = await response.json();
+      console.log("Created:", result);
+      getEmployee();
     } catch (error) {
       console.log(error);
     }
   }
 
   async function deleteEmployee(id) {
-    try{
-      const response = await fetch(`https://dummy.restapiexample.com/api/v1/delete/${id}`, {
-        method: 'DELETE'
-      })
-      const result = response.json()
-      console.log(result)
-    } catch(error) {
+    try {
+      await fetch(`${url}/${id}`, {
+        method: "DELETE",
+      });
+      getEmployee();
+    } catch (error) {
       console.log(error);
     }
   }
+
+  async function updateEmployee() {
+    if (!name || !age || !salary || !editEmployeeId) return;
+    try {
+      const response = await fetch(`${url}/${editEmployeeId}`, {
+        method: "PUT",
+        body: JSON.stringify({ name, age, salary }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const result = await response.json();
+      console.log("Updated:", result);
+      setEditMode(false);
+      setEditEmployeeId(null);
+      setName("");
+      setAge("");
+      setSalary("");
+      getEmployee();
+    } catch (error) {
+      console.error("Error updating employee:", error);
+    }
+  }
+
+  const handleEditClick = (employee) => {
+    setEditMode(true);
+    setEditEmployeeId(employee.id);
+    setName(employee.firstName);
+    setAge(employee.age);
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -101,19 +118,25 @@ function App() {
               <span className="font-semibold">ID:</span> {employee.id}
             </p>
             <p>
-              <span className="font-semibold">Name:</span>{" "}
-              {employee.employee_name}
+              <span className="font-semibold">Name:</span> {employee.firstName}
             </p>
             <p>
-              <span className="font-semibold">Salary:</span> ₹
-              {employee.employee_salary}
+              <span className="font-semibold">Age:</span> {employee.age}
             </p>
-            <p>
-              <span className="font-semibold">Age:</span>{" "}
-              {employee.employee_age}
-            </p>
-            <button onClick={() => deleteEmployee(employee.id)}>Delete</button>
-
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={() => deleteEmployee(employee.id)}
+                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => handleEditClick(employee)}
+                className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+              >
+                Edit
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -148,39 +171,54 @@ function App() {
             </p>
             <p>
               <span className="font-semibold">Name:</span>{" "}
-              {ekemployee.employee_name}
+              {ekemployee.firstName}
             </p>
             <p>
-              <span className="font-semibold">Salary:</span> ₹
-              {ekemployee.employee_salary}
-            </p>
-            <p>
-              <span className="font-semibold">Age:</span>{" "}
-              {ekemployee.employee_age}
+              <span className="font-semibold">Age:</span> {ekemployee.age}
             </p>
           </div>
         )}
       </div>
 
-      <hr />
-      <br />
-      <h1>Create new Employee</h1>
-      <input
-        type="text"
-        onChange={(e) => setName(e.target.value)}
-        placeholder="name"
-      />
-      <input
-        type="number"
-        onChange={(e) => setAge(e.target.value)}
-        placeholder="age"
-      />
-      <input
-        type="number"
-        onChange={(e) => setSalary(e.target.value)}
-        placeholder="tankhwa"
-      />
-      <button onClick={createEmployee}>Submit</button>
+      <hr className="my-10" />
+
+      {/* Create or Edit Employee */}
+      <div className="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          {editMode ? "Edit Employee" : "Create New Employee"}
+        </h2>
+        <div className="space-y-4">
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Name"
+          />
+          <input
+            type="number"
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Age"
+          />
+          <input
+            type="number"
+            value={salary}
+            onChange={(e) => setSalary(e.target.value)}
+            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Salary"
+          />
+          <button
+            onClick={editMode ? updateEmployee : createEmployee}
+            className={`w-full py-2 ${
+              editMode ? "bg-yellow-500" : "bg-green-600"
+            } text-white rounded hover:opacity-90`}
+          >
+            {editMode ? "Update Employee" : "Create Employee"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
